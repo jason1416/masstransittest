@@ -1,0 +1,5 @@
+Sample-RequestResponse-Dotnet-Core/Client/bin/
+Sample-RequestResponse-Dotnet-Core/Client/obj/
+Sample-RequestResponse-Dotnet-Core/RequestService/obj/
+Sample-RequestResponse-Dotnet-Core/Sample.MessageTypes/obj/
+Sample-RequestResponse-Dotnet-Core/Sample.MessageTypes/bin/
