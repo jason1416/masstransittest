@@ -5,25 +5,31 @@
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
+    using log4net.Config;
     using MassTransit;
+    using MassTransit.Log4NetIntegration.Logging;
     using MassTransit.Util;
     using Sample.MessageTypes;
 
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Configuration.FileExtensions;
-    using Microsoft.Extensions.Configuration.Json;
+
     class Program
     {
         static void Main()
         {
+            ConfigureLogger();
+
+            // MassTransit to use Log4Net
+            Log4NetLogger.Use();
+
             IBusControl busControl = CreateBus();
+
             TaskUtil.Await(() => busControl.StartAsync());
 
             try
             {
                 IRequestClient<ISimpleRequest, ISimpleResponse> client = CreateRequestClient(busControl);
 
-                for (; ; )
+                for (;;)
                 {
                     Console.Write("Enter customer id (quit exits): ");
                     string customerId = Console.ReadLine();
@@ -52,7 +58,7 @@
 
         static IRequestClient<ISimpleRequest, ISimpleResponse> CreateRequestClient(IBusControl busControl)
         {
-            var serviceAddress = new Uri(Configuration["ServiceAddress"]);
+            var serviceAddress = new Uri(ConfigurationManager.AppSettings["ServiceAddress"]);
             IRequestClient<ISimpleRequest, ISimpleResponse> client =
                 busControl.CreateRequestClient<ISimpleRequest, ISimpleResponse>(serviceAddress, TimeSpan.FromSeconds(10));
 
@@ -61,44 +67,56 @@
 
         static IBusControl CreateBus()
         {
-            return Bus.Factory.CreateUsingRabbitMq(x => x.Host(new Uri(Configuration["RabbitMQHost"]), h =>
+            return Bus.Factory.CreateUsingRabbitMq(x => x.Host(new Uri(ConfigurationManager.AppSettings["RabbitMQHost"]), h =>
             {
                 h.Username("username");
                 h.Password("password");
             }));
         }
 
-
-        private static IConfigurationRoot Configuration
+        static void ConfigureLogger()
         {
-            get
+            const string logConfig = @"<?xml version=""1.0"" encoding=""utf-8"" ?>
+<log4net>
+  <root>
+    <level value=""INFO"" />
+    <appender-ref ref=""console"" />
+  </root>
+  <appender name=""console"" type=""log4net.Appender.ColoredConsoleAppender"">
+    <layout type=""log4net.Layout.PatternLayout"">
+      <conversionPattern value=""%m%n"" />
+    </layout>
+  </appender>
+</log4net>";
+
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(logConfig)))
             {
-                var config = new ConfigurationBuilder()
-                       .AddJsonFile("appsettings.json", true, true)
-                       .Build();
-                return config  ;
+                XmlConfigurator.Configure(stream);
             }
         }
-    }
-    class SimpleRequest : ISimpleRequest
-    {
-        readonly string _customerId;
-        readonly DateTime _timestamp;
 
-        public SimpleRequest(string customerId)
-        {
-            _customerId = customerId;
-            _timestamp = DateTime.UtcNow;
-        }
 
-        public DateTime Timestamp
+        class SimpleRequest :
+            ISimpleRequest
         {
-            get { return _timestamp; }
-        }
+            readonly string _customerId;
+            readonly DateTime _timestamp;
 
-        public string CustomerId
-        {
-            get { return _customerId; }
+            public SimpleRequest(string customerId)
+            {
+                _customerId = customerId;
+                _timestamp = DateTime.UtcNow;
+            }
+
+            public DateTime Timestamp
+            {
+                get { return _timestamp; }
+            }
+
+            public string CustomerId
+            {
+                get { return _customerId; }
+            }
         }
     }
 }
