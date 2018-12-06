@@ -37,6 +37,8 @@
   <ItemGroup>
     <Compile Include="ISimpleRequest.cs" />
     <Compile Include="ISimpleResponse.cs" />
+    <Compile Include="ICheckOrderStatus.cs" />
+    <Compile Include="IOrderStatusResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

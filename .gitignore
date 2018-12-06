@@ -4,3 +4,10 @@ Sample-RequestResponse-Dotnet-Core/RequestService/obj/
 Sample-RequestResponse-Dotnet-Core/Sample.MessageTypes/obj/
 Sample-RequestResponse-Dotnet-Core/Sample.MessageTypes/bin/
 *.exe
+Consumers/obj/
+Sample-RequestResponse-Dotnet-Core/Repository/bin/
+Sample-RequestResponse-Dotnet-Core/Repository/obj/project.assets.json
+Sample-RequestResponse-Dotnet-Core/Repository/obj/
+Sample-RequestResponse-Dotnet-Core/RequestService/bin/
+Sample-RequestResponse-Dotnet-Core/.vs/
+Consumers/bin/
